@@ -61,6 +61,6 @@ memory/
 
 | 文件 | 用途 |
 |------|------|
-| `CLAUDE.md.snippet` | 单项目使用：追加到项目根的 CLAUDE.md |
+| `CLAUDE.md.snippet` | 单项目使用：追加到项目根的 CLAUDE.md 或 AGENTS.md |
 | `global-CLAUDE.md.snippet` | 全局使用：追加到 ~/.claude/CLAUDE.md |
 | `memory/*.md` | 记忆文件模板 |
