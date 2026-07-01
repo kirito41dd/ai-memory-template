@@ -14,29 +14,6 @@ cp -r ai-memory-template/memory /path/to/your-project/.ai/memory
 cat ai-memory-template/CLAUDE.md.snippet >> /path/to/your-project/CLAUDE.md
 ```
 
-### 方式二：全局默认（推荐）
-
-**步骤 1：安装模板**
-```bash
-# 复制模板到 Claude 配置目录（或你喜欢的位置）
-mkdir -p ~/.claude/templates
-cp -r ai-memory-template ~/.claude/templates/ai-memory
-```
-
-**步骤 2：配置全局规则**
-将 `global-CLAUDE.md.snippet` 的内容追加到 `~/.claude/CLAUDE.md`：
-```bash
-cat ai-memory-template/global-CLAUDE.md.snippet >> ~/.claude/CLAUDE.md
-```
-
-**步骤 3：使用**
-进入新项目时，让 Claude 执行初始化：
-> "初始化本项目的 AI 记忆系统"
-
-Claude 会询问模板位置（默认 `~/.claude/templates/ai-memory/memory/`），确认后复制到当前项目的 `.ai/memory/`。
-
-**注意**：如果你将模板放在其他位置，初始化时告诉 Claude 实际路径即可。
-
 ## 设计原则
 
 1. **渐进式披露**：启动时只读 `index.md`（~150 行），按需加载具体记忆
@@ -62,5 +39,4 @@ memory/
 | 文件 | 用途 |
 |------|------|
 | `CLAUDE.md.snippet` | 单项目使用：追加到项目根的 CLAUDE.md 或 AGENTS.md |
-| `global-CLAUDE.md.snippet` | 全局使用：追加到 ~/.claude/CLAUDE.md |
 | `memory/*.md` | 记忆文件模板 |
