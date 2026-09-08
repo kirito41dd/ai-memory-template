@@ -1,42 +1,59 @@
 # AI Memory Template
 
-项目级 AI coding agent 长期记忆系统模板，采用渐进式披露（progressive disclosure）避免上下文膨胀。
+项目级 AI coding agent 长期记忆模板。用 Markdown 保存有来源的项目知识，通过索引和条目检索按需加载。
 
 ## 使用方式
 
-### 方式一：单项目初始化
+### 单项目初始化
 
-```bash
-# 从本模板复制到目标项目
-cp -r ai-memory-template/memory /path/to/your-project/.ai/memory
+需要 Nushell（本仓库验证版本：0.113.1）。从本模板目录执行，目标项目需已存在：
 
-# 将 CLAUDE.md.snippet 的内容追加到项目 CLAUDE.md
-cat ai-memory-template/CLAUDE.md.snippet >> /path/to/your-project/CLAUDE.md
+```nu
+nu scripts/init.nu /path/to/your-project
+
+# 使用 AGENTS.md 的项目
+nu scripts/init.nu /path/to/your-project --agent-file AGENTS.md
 ```
 
-## 设计原则
+脚本创建缺失的 `.ai/memory/` 目录和模板文件，已有记忆、索引和策略文件保持原样。入口写入所选指令文件的 `ai-memory:start` / `ai-memory:end` 标记块，重复执行仅更新该块，保留块外内容。
 
-1. **渐进式披露**：启动时只读 `index.md`（~150 行），按需加载具体记忆
-2. **硬性行数上限**：CLAUDE.md ≤ 100 行，index.md ≤ 150 行，单记忆文件 ≤ 500 行
-3. **追加不删除**：过时记忆标记 `[DEPRECATED]`，超限归档到 `archive/`
-4. **用户在回路**：写入前必须询问确认，不偷偷记忆
+已有无标记的旧版“项目记忆机制”时，脚本会停止并提示迁移，避免重复插入或误改项目指令。将旧记忆机制段落替换为 `CLAUDE.md.snippet` 后再运行；其他项目指令保留。一个项目选择一个入口文件即可。
+
+### 已有记忆的升级
+
+初始化脚本只补齐缺失文件，不自动迁移已有记忆。升级前先查看目标项目的策略和用户定制：合并新的操作规范，清理旧索引、文件头部和归档说明中的重复规则；逐条补齐 ID、范围、来源和状态，将旧 `[DEPRECATED]` 按实际含义映射为“已废弃”或“已替代”。无法确认的条目标为“待核验”，不猜测来源。
+
+旧标题锚点仍被引用时保留为兼容锚点，或同步更新所有引用；新链接使用稳定 ID。涉及既有记录的迁移，应按明确的修改范围取得授权。
+
+## 工作方式
+
+- **检索**：先读索引，按模块／路径／关键词定位，再读取相关完整条目；索引未命中时继续搜索活跃区，必要时查归档。
+- **有效性**：记录来源、范围和状态，用显式替代关系区分当前约定与历史理由。
+- **写入**：默认任务结束时批量确认；用户明确要求记住的内容直接记录，也可配置逐条确认或限定范围内自动写入。
+- **维护**：只保留分类摘要和必要导航，不手工维护条目数、热点或高频标签。
+- **归档**：按完整的失效条目移动并修复引用；仍有效的知识不因时间久或文件变长而归档。
+
+详细规则和写入策略统一在 [memory/policy.md](memory/policy.md) 维护。入口保持简短，索引约 150 行、活跃文件约 500 行作为整理参考，不限制项目原有指令文件的总长度。
 
 ## 目录结构
 
 ```
-memory/
-├── index.md            # 路标（必读）
-├── requirements.md     # 需求演进史
-├── decisions.md        # 技术决策记录（ADR 风格）
-├── gotchas.md          # 踩坑与注意事项
-├── conventions.md      # 项目内约定
-├── glossary.md         # 术语表
-└── archive/            # 归档目录（默认不读）
+.ai/memory/
+├── index.md            # 分类入口、模块与关键条目导航
+├── policy.md           # 检索、授权、冲突和维护规则
+├── requirements.md     # 需求与演进原因
+├── decisions.md        # 技术决策与取舍
+├── gotchas.md          # 已验证的坑与规避方式
+├── conventions.md      # 项目特定约定
+├── glossary.md         # 业务术语
+└── archive/            # 历史条目，按需检索
 ```
 
 ## 文件清单
 
 | 文件 | 用途 |
 |------|------|
-| `CLAUDE.md.snippet` | 单项目使用：追加到项目根的 CLAUDE.md 或 AGENTS.md |
-| `memory/*.md` | 记忆文件模板 |
+| `scripts/init.nu` | 幂等初始化，保留现有记忆和块外指令 |
+| `CLAUDE.md.snippet` | 写入 CLAUDE.md 或 AGENTS.md 的托管入口块 |
+| `memory/policy.md` | 操作规范及项目写入策略 |
+| `memory/*.md` | 索引和分类模板，代码块内示例不是实际记忆 |
